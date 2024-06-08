@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "563112041035",
+    "project_id": "spiritdb-6df50",
+    "storage_bucket": "spiritdb-6df50.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:563112041035:android:d90dffcc7199b3f1824bce",
+        "android_client_info": {
+          "package_name": "com.example.coinspirit2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxXJ5c75cA3ePrS1YNrCTF4l1D68ZZbUU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

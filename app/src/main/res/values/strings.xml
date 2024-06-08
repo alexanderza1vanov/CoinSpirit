@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CoinSpirit2</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="kolvo_et">Введите количество монет</string>
+    <string name="price_to_buy_et">Введите цену покупки</string>
+    <string name="add">Add</string>
+    <string name="symbol">Symbol</string>
+    <string name="name">Name</string>
+</resources>
