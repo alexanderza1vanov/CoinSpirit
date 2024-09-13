@@ -27,9 +27,9 @@ class RegisterActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        binding.backBtn.setOnClickListener {
-            startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
-        }
+//        binding.backBtn.setOnClickListener {
+//            startActivity(Intent(this@RegisterActivity, LoginActivity::class.java))
+//        }
 
         binding.signUpBtn.setOnClickListener {
             val email = binding.emailEt.text.toString()

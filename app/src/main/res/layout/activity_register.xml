@@ -55,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="9dp"
             android:fontFamily="@font/ubuntu_light"
+            android:textColor="@android:color/transparent"
             android:hint="Email"
             android:maxLines="1"/>
 

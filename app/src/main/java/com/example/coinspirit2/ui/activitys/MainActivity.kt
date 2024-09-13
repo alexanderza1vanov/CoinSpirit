@@ -25,6 +25,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
 import java.text.DecimalFormat
+import java.util.Random
 
 class MainActivity : AppCompatActivity(), DataTransfer {
 
@@ -41,9 +42,28 @@ class MainActivity : AppCompatActivity(), DataTransfer {
     private val updateInterval = 5000L // Интервал обновления в миллисекундах (5 секунд)
     private var updateJob: Job? = null
 
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_main)
+//
+//        recyclerView = findViewById(R.id.main_recyclerview)
+//        totalValueTextView = findViewById(R.id.value_portfolio_tv)
+//        profitTextView = findViewById(R.id.profit_portfolio_tv)
+//        portfolioList = ArrayList()
+//        portfolioRVAdapter = PortfolioRVAdapter(this, portfolioList)
+//        recyclerView.adapter = portfolioRVAdapter
+//        recyclerView.layoutManager = LinearLayoutManager(this)
+//
+//        val addImageView: ImageView = findViewById(R.id.add_img)
+//        addImageView.setOnClickListener { showSearchDialogFragment() }
+//
+//        val settingsImageView: ImageView = findViewById(R.id.settings_image)
+//        settingsImageView.setOnClickListener { showSettingsDialogFragment() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        var clickCount = 0  // Переменная для отслеживания количества нажатий
 
         recyclerView = findViewById(R.id.main_recyclerview)
         totalValueTextView = findViewById(R.id.value_portfolio_tv)
@@ -54,40 +74,82 @@ class MainActivity : AppCompatActivity(), DataTransfer {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         val addImageView: ImageView = findViewById(R.id.add_img)
-        addImageView.setOnClickListener { showSearchDialogFragment() }
+        addImageView.setOnClickListener {
+            clickCount++  // Увеличиваем счётчик при каждом нажатии
+            if (clickCount >= 2) {
+                addImageView.isClickable = false  // Отключаем кликабельность после второго нажатия
+            } else {
+                showSearchDialogFragment()
+            }
+        }
 
         val settingsImageView: ImageView = findViewById(R.id.settings_image)
         settingsImageView.setOnClickListener { showSettingsDialogFragment() }
 
-        auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
-        currencyRepository = CurrencyRepository(this)
+//        auth = FirebaseAuth.getInstance()
+//        db = FirebaseFirestore.getInstance()
+//        currencyRepository = CurrencyRepository(this)
+//
+//        val currentUser: FirebaseUser? = auth.currentUser
+//
+//        if (currentUser == null) {
+//            // Пользователь не авторизован, перенаправляем на LoginActivity
+//            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+//            finish() // Завершаем текущую активность
+//        } else {
+//            // Получаем userId текущего пользователя
+//            val userId: String = currentUser.uid
+//            val userRef: DocumentReference = db.collection("Users").document(userId)
+//
+//            // Извлекаем данные пользователя из Firestore
+//            userRef.get().addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    val document = task.result
+//                    if (document.exists()) {
+//                        val username = document.getString("username")
+//                        Toast.makeText(this, "Welcome, $username", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        Toast.makeText(this, "Welcome, ${currentUser.email}", Toast.LENGTH_SHORT).show()
+//                    }
+//                } else {
+//                    Toast.makeText(this, "Error getting user data.", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+            auth = FirebaseAuth.getInstance()
+            db = FirebaseFirestore.getInstance()
+            currencyRepository = CurrencyRepository(this)
 
-        val currentUser: FirebaseUser? = auth.currentUser
+            val currentUser: FirebaseUser? = auth.currentUser
 
-        if (currentUser == null) {
-            // Пользователь не авторизован, перенаправляем на LoginActivity
-            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-            finish() // Завершаем текущую активность
-        } else {
-            // Получаем userId текущего пользователя
-            val userId: String = currentUser.uid
-            val userRef: DocumentReference = db.collection("Users").document(userId)
+            if (currentUser == null) {
+                // Пользователь не авторизован, перенаправляем на LoginActivity
+                startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+                finish() // Завершаем текущую активность
+            } else {
+                // Получаем userId текущего пользователя
+                val userId: String = currentUser.uid
+                val userRef: DocumentReference = db.collection("Users").document(userId)
 
-            // Извлекаем данные пользователя из Firestore
-            userRef.get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val document = task.result
-                    if (document.exists()) {
-                        val username = document.getString("username")
-                        Toast.makeText(this, "Welcome, $username", Toast.LENGTH_SHORT).show()
+                // Массив случайных имен
+                val names = arrayOf("Годрик", "Вхагар", "Валар Маргулис", "Оптимус Прайм")
+                val randomName = names[Random().nextInt(names.size)]
+
+                // Извлекаем данные пользователя из Firestore
+                userRef.get().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val document = task.result
+                        if (document.exists()) {
+                            // Ошибка: вместо имени пользователя используется случайное имя
+                            Toast.makeText(this, "Welcome, $randomName", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Welcome, ${currentUser.email}", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
-                        Toast.makeText(this, "Welcome, ${currentUser.email}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Error getting user data.", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(this, "Error getting user data.", Toast.LENGTH_SHORT).show()
                 }
-            }
+
+
 
             // Загрузка транзакций
             userRef.collection("Transactions").get()
@@ -224,6 +286,16 @@ class MainActivity : AppCompatActivity(), DataTransfer {
         totalValueTextView.text = "$${df2.format(totalValue)}"
     }
 
+//    private fun updatePortfolioProfit() {
+//        var totalProfit = 0.0
+//        for (item in portfolioList) {
+//            val currentPrice = item.price.toDoubleOrNull() ?: 0.0
+//            val purchasePrice = item.purchasePrice.toDoubleOrNull() ?: 0.0
+//            val quantity = item.quantity.toDoubleOrNull() ?: 0.0
+//            totalProfit += (currentPrice - purchasePrice) * quantity
+//        }
+//        profitTextView.text = "$${df2.format(totalProfit)}"
+//    }
     private fun updatePortfolioProfit() {
         var totalProfit = 0.0
         for (item in portfolioList) {
@@ -232,7 +304,18 @@ class MainActivity : AppCompatActivity(), DataTransfer {
             val quantity = item.quantity.toDoubleOrNull() ?: 0.0
             totalProfit += (currentPrice - purchasePrice) * quantity
         }
-        profitTextView.text = "$${df2.format(totalProfit)}"
+
+        // Генерируем случайное число от 1 до 10
+        val randomNumber = (2..10).random()
+
+        // Делим итоговую прибыль на случайное число
+        val dividedProfit = totalProfit / randomNumber
+
+        // Отображаем результат в TextView
+        profitTextView.text = "$${df2.format(dividedProfit)}"
+
+        // Логируем для отладки
+        Log.d("ProfitCalculation", "Total profit: $totalProfit, Divided by: $randomNumber, Result: $dividedProfit")
     }
 
     private fun updateCryptoPrices() {
