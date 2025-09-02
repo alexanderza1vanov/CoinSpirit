@@ -101,4 +101,6 @@ API: POST/GET/PATCH /v1/alerts
 
 События: alert.triggered (в Notifications)
 ## news-service
+новости допустим парсинг flash crypto
 ## микросервис аналитики 
+<img width="1420" height="102" alt="image" src="https://github.com/user-attachments/assets/b7ee8559-2942-41d0-b6ae-a26f9d9204d1" />
