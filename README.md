@@ -34,7 +34,7 @@
 Микросервисы
 Auth & Users – регистрация, логин, refresh токены.
 
-API Gateway / BFF (Mobile)
+## API Gateway / BFF (Mobile)
 
 Цель: единая точка входа, агрегация данных под экраны мобильного клиента.
 
@@ -42,7 +42,7 @@ API: GET /bff/home, GET /bff/history, POST /bff/transactions
 
 Зависит от: Auth, Portfolio, Market Data, Alerts, Profiles.
 
-Auth & Users
+## Auth & Users
 
 Цель: регистрация, логин, refresh-токены, управление пользователями.
 
@@ -52,7 +52,7 @@ API: POST /v1/auth/signup|login|refresh, GET /v1/users/me
 
 События: user.created, user.deactivated
 
-Profiles (настройки пользователя)
+## Profiles (настройки пользователя)
 
 Цель: валюта по умолчанию, локаль, тема, часовой пояс, опции приватности.
 
@@ -62,7 +62,7 @@ API: GET/PUT /v1/profile
 
 События: profile.updated
 
-Assets Catalog (справочник активов)
+## Assets Catalog (справочник активов)
 
 Цель: метаданные монет/токенов, символы, точности, привязки к провайдерам.
 
@@ -72,7 +72,7 @@ API: GET /v1/assets?query=ETH, GET /v1/assets/{id}
 
 События: asset.updated (редко)
 
-Market Data (котировки/история)
+## Market Data (котировки/история)
 
 Цель: агрегация цен, кэширование, ohlcv, конвертация в базовую валюту.
 
@@ -82,7 +82,7 @@ API: GET /v1/quotes?assets=BTC,ETH&convert=USD, GET /v1/ohlcv/{asset}
 
 События: price.tick, ohlcv.updated
 
-Portfolio (позиции/оценка)
+## Portfolio (позиции/оценка)
 
 Цель: хранение позиций, вычисление стоимости и PnL.
 
@@ -92,7 +92,7 @@ API: GET /v1/positions, GET /v1/valuations?at=...
 
 События: portfolio.position_changed, portfolio.valuation_ready
 
-Transactions (журнал операций)
+## Transactions (журнал операций)
 
 Цель: buy/sell/transfer/staking/reward, идемпотентность, консистентность.
 
@@ -104,7 +104,7 @@ API: POST /v1/transactions, GET /v1/transactions?cursor=...
 
 Примечание: можно объединить 6 и 7 в один сервис на старте, но разделение упрощает масштабирование.
 
-Уведомления
+## Уведомления
 
 Цель: хранение и оценка условий (цена выше/ниже, %-изменение, дневные лимиты).
 
