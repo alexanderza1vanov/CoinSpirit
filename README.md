@@ -34,13 +34,7 @@
 Микросервисы
 Auth & Users – регистрация, логин, refresh токены.
 
-## API Gateway / BFF (Mobile)
 
-Цель: единая точка входа, агрегация данных под экраны мобильного клиента.
-
-API: GET /bff/home, GET /bff/history, POST /bff/transactions
-
-Зависит от: Auth, Portfolio, Market Data, Alerts, Profiles.
 
 ## Auth & Users
 
@@ -51,12 +45,6 @@ API: GET /bff/home, GET /bff/history, POST /bff/transactions
 API: POST /v1/auth/signup|login|refresh, GET /v1/users/me
 
 События: user.created, user.deactivated
-
-## Profiles (настройки пользователя)
-
-Цель: валюта по умолчанию, локаль, тема, часовой пояс, опции приватности.
-
-Данные: profiles(user_id, base_currency, locale, theme, tz, ...)
 
 API: GET/PUT /v1/profile
 
@@ -112,3 +100,5 @@ API: POST /v1/transactions, GET /v1/transactions?cursor=...
 API: POST/GET/PATCH /v1/alerts
 
 События: alert.triggered (в Notifications)
+## news-service
+## микросервис аналитики 
