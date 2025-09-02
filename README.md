@@ -62,15 +62,13 @@ API: GET/PUT /v1/profile
 
 События: profile.updated
 
-## Assets Catalog (справочник активов)
+## Search (по активам)
 
-Цель: метаданные монет/токенов, символы, точности, привязки к провайдерам.
+Цель: полнотекстовый поиск по активам.
 
-Данные: assets, asset_aliases, icons
+Данные: индекс (OpenSearch/Meilisearch)
 
-API: GET /v1/assets?query=ETH, GET /v1/assets/{id}
-
-События: asset.updated (редко)
+API: GET /v1/search?q=...
 
 ## Market Data (котировки/история)
 
