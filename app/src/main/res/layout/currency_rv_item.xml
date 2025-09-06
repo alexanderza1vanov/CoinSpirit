@@ -23,7 +23,7 @@
             android:layout_marginBottom="2dp"
             android:padding="3dp"
             android:layout_toLeftOf="@+id/TVCurrencyRate"
-            android:text="Symbol"
+            android:text="@string/symbol"
             android:textColor="@color/black"
             android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
             android:layout_marginEnd="2dp"
             android:layout_marginBottom="2dp"
             android:padding="3dp"
-            android:text="Name"
+            android:text="@string/name"
             android:textColor="@color/black" />
 
         <TextView
@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/TVCurrencyRate"
             android:layout_alignParentEnd="true"
-            android:text="Rate"
+            android:text="@string/price_now"
             android:textColor="@color/black"
             android:layout_marginRight="3dp"
             android:layout_marginLeft="3dp"

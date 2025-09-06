@@ -7,18 +7,22 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.coinspirit2.R
 import com.example.coinspirit2.data.model.PortfolioRVModel
+import com.example.coinspirit2.data.repository.AuthRepository
 import com.example.coinspirit2.data.repository.CurrencyRepository
 import com.example.coinspirit2.ui.adapters.PortfolioRVAdapter
 import com.example.coinspirit2.ui.fragments.CurrencyDetailFragment
 import com.example.coinspirit2.ui.fragments.SearchFragment
 import com.example.coinspirit2.ui.fragments.SettingsFragment
 import com.example.coinspirit2.ui.interfaces.DataTransfer
+import com.example.coinspirit2.utils.TokenManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
@@ -42,6 +46,25 @@ class MainActivity : AppCompatActivity(), DataTransfer {
     private var updateJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (SettingsFragment.isDarkModeEnabled(this)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+        lifecycleScope.launch {
+            val token = TokenManager.getToken(this@MainActivity)
+            if (token != null) {
+                val response = AuthRepository().getMe(token)
+                if (response.isSuccessful) {
+                    val user = response.body()
+                    Toast.makeText(this@MainActivity, "Добро пожаловать, ${user?.login}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@MainActivity, "Ошибка токена", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 

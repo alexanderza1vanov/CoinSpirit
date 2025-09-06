@@ -1,29 +1,63 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     tools:context=".ui.fragments.SearchFragment">
 
+    <!-- Поле ввода для поиска -->
     <EditText
+        android:id="@+id/EdtSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/EdtSearch"
-        android:layout_margin="4dp"
-        android:hint="Поиск криптовалюты"
-        />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="0dp"
+        android:layout_toStartOf="@+id/btnClear"
+        android:hint="@string/search_crypto" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/EdtSearch"
-        android:id="@+id/RVCurrencies"/>
-    <ProgressBar
+    <!-- Кнопка "Очистить" справа от поля -->
+    <ImageButton
+        android:id="@+id/btnClear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/PBLoading"
-        android:layout_centerInParent="true"
-        android:visibility="gone"/>
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="4dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/clear"
+        android:visibility="invisible"
+        android:src="@drawable/clear" />
 
+    <!-- RecyclerView под полем -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RVCurrencies"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/EdtSearch" />
+
+    <!-- ProgressBar по центру -->
+    <ProgressBar
+        android:id="@+id/PBLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <!-- Новая кнопка для очистки истории -->
+    <ImageButton
+        android:id="@+id/btnClearHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/EdtSearch"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/clear"
+        android:src="@drawable/clear"
+        android:visibility="invisible" />
 </RelativeLayout>

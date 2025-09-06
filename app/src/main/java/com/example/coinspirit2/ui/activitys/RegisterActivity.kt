@@ -5,10 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.coinspirit2.ui.activitys.MainActivity
 import com.example.coinspirit2.databinding.ActivityRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -20,7 +19,6 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -32,9 +30,9 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         binding.signUpBtn.setOnClickListener {
-            val email = binding.emailEt.text.toString()
-            val password = binding.passwordEt.text.toString()
-            val username = binding.usernameEt.text.toString()
+            val email = binding.emailEt.text.toString().trim()
+            val password = binding.passwordEt.text.toString().trim()
+            val username = binding.usernameEt.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
                 Toast.makeText(applicationContext, "Fields cannot be empty", Toast.LENGTH_SHORT).show()
@@ -43,13 +41,27 @@ class RegisterActivity : AppCompatActivity() {
                     .addOnCompleteListener(this@RegisterActivity) { task ->
                         if (task.isSuccessful) {
                             val user = auth.currentUser
-                            user?.let {
-                                val userId = it.uid
+                            if (user != null) {
+                                // Обновляем профиль пользователя: устанавливаем displayName = username
+                                val profileUpdates = UserProfileChangeRequest.Builder()
+                                    .setDisplayName(username)
+                                    .build()
+                                user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener { updateTask ->
+                                        if (updateTask.isSuccessful) {
+                                            Log.d("RegisterActivity", "User profile updated.")
+                                        } else {
+                                            Log.e("RegisterActivity", "Profile update failed.", updateTask.exception)
+                                        }
+                                    }
+                                // Сохраняем дополнительные данные пользователя в Firestore
+                                val userId = user.uid
                                 val userRef: DocumentReference = db.collection("Users").document(userId)
                                 userRef.set(User(email, username))
                                     .addOnSuccessListener {
                                         Log.d("RegisterActivity", "User data saved successfully")
                                         startActivity(Intent(this@RegisterActivity, MainActivity::class.java))
+                                        finish()
                                     }
                                     .addOnFailureListener { e ->
                                         Log.e("RegisterActivity", "Failed to save user data", e)
@@ -65,6 +77,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    // Простая модель пользователя для сохранения в Firestore
     data class User(
         var email: String = "",
         var username: String = ""

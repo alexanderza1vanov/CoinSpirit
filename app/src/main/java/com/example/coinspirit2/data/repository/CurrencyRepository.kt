@@ -47,7 +47,7 @@ class CurrencyRepository(private val context: Context) {
             @Throws(AuthFailureError::class)
             override fun getHeaders(): Map<String, String> {
                 val headers = HashMap<String, String>()
-                headers["X-CMC_PRO_API_KEY"] = "9dda162c-a631-4d4e-8d1b-78b5f1c0b67e"
+                headers["X-CMC_PRO_API_KEY"] = "63912381-5412-4808-9a5a-0f218d0fc574"
                 return headers
             }
         }
