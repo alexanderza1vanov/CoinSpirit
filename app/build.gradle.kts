@@ -2,17 +2,15 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.gms.google-services")
-    // Safe Args не обязателен; если захочешь – раскомментируй и добавь в top-level build.gradle:
-    // id("androidx.navigation.safeargs.kotlin")
+    // если у тебя есть Firebase — оставь: id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.coinspirit2"
+    namespace = "com.example.coinspirit2" // ← замени на свой
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.coinspirit2"
+        applicationId = "com.example.coinspirit2" // ← замени на свой
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -20,10 +18,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes { release {
-        isMinifyEnabled = false
-        proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-    }}
+    buildTypes {
+        debug {
+            // для эмулятора Android доступ к localhost машины через 10.0.2.2
+            buildConfigField("String", "API_BASE", "\"http://10.0.2.2:8080\"")
+        }
+        release {
+            isMinifyEnabled = false
+            buildConfigField("String", "API_BASE", "\"http://10.0.2.2:8080\"")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -43,47 +51,32 @@ dependencies {
     implementation("androidx.activity:activity:1.9.2")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
-    // Navigation
+    // Navigation (если у тебя уже стоит — версии можешь оставить свои)
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.8.3")
 
-
-
     // Coroutines + Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
-    // ✅ Один HTTP-стек — Ktor (и для вашего бэка, и для CoinMarketCap)
-    implementation("io.ktor:ktor-client-okhttp:3.1.2")
-    implementation("io.ktor:ktor-client-content-negotiation:3.1.2")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.2")
-    implementation("io.ktor:ktor-client-logging:3.1.2")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.browser:browser:1.9.0")
-
-
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-    // Ktor client
+    // ✅ Ktor client (тот же major, что и сервер)
     implementation("io.ktor:ktor-client-okhttp:3.0.0")
     implementation("io.ktor:ktor-client-content-negotiation:3.0.0")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.0")
     implementation("io.ktor:ktor-client-logging:3.0.0")
     implementation("io.ktor:ktor-client-auth:3.0.0")
 
-    // Kotlinx
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-
-    // DataStore для хранения токенов
+    // DataStore для токенов
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
-    // Lifecycle/ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.6")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    // Логи OkHttp (опционально)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Desugaring (Instant/Date APIs и др.)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

@@ -1,19 +1,24 @@
-package com.example.coinspirit2.ui.activitys
+package com.example.coinspirit2
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
-import com.example.coinspirit2.R
-import com.example.coinspirit2.data.remote.ApiClient
-import com.example.coinspirit2.data.remote.AuthRepository
-import com.example.coinspirit2.data.remote.PortfolioApi
-import com.example.coinspirit2.data.remote.PortfolioRepository
+import com.example.coinspirit2.data.remote.api.PortfolioApi
+import com.example.coinspirit2.data.repo.AuthRepository
+import com.example.coinspirit2.data.repo.PortfolioRepository
 import com.example.coinspirit2.utils.TokenManager
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+
+import com.example.coinspirit2.databinding.ActivityMainBinding
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    val graph by lazy { (application as App).graph }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val navHost = supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
         val navController = navHost.navController

@@ -2,40 +2,40 @@ package com.example.coinspirit2.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.coinspirit2.data.remote.dto.TokenResponse
-import com.example.coinspirit2.data.repository.AuthRepository
+import com.example.coinspirit2.data.repo.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-data class AuthState(
-    val isLoading: Boolean = false,
-    val tokens: TokenResponse? = null,
-    val error: String? = null
-)
+sealed interface AuthState {
+    data object Idle: AuthState
+    data object Loading: AuthState
+    data class Error(val message: String): AuthState
+    data object Success: AuthState
+}
 
 class AuthViewModel(
-    private val repo: AuthRepository = AuthRepository()
-) : ViewModel() {
+    private val repo: AuthRepository
+): ViewModel() {
 
-    private val _state = MutableStateFlow(AuthState())
+    private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
     val state: StateFlow<AuthState> = _state
 
-    fun register(email: String, password: String) {
-        _state.value = AuthState(isLoading = true)
+    fun login(email: String, pass: String) {
         viewModelScope.launch {
-            repo.register(email, password)
-                .onSuccess { _state.value = AuthState(tokens = it) }
-                .onFailure { _state.value = AuthState(error = it.message) }
+            _state.value = AuthState.Loading
+            runCatching { repo.login(email, pass) }
+                .onSuccess { _state.value = AuthState.Success }
+                .onFailure { _state.value = AuthState.Error(it.message ?: "Ошибка") }
         }
     }
 
-    fun login(email: String, password: String) {
-        _state.value = AuthState(isLoading = true)
+    fun register(email: String, pass: String) {
         viewModelScope.launch {
-            repo.login(email, password)
-                .onSuccess { _state.value = AuthState(tokens = it) }
-                .onFailure { _state.value = AuthState(error = it.message) }
+            _state.value = AuthState.Loading
+            runCatching { repo.register(email, pass) }
+                .onSuccess { _state.value = AuthState.Success }
+                .onFailure { _state.value = AuthState.Error(it.message ?: "Ошибка") }
         }
     }
 }
