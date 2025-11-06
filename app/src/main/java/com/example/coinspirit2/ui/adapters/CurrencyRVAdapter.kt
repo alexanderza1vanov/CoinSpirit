@@ -1,5 +1,6 @@
 package com.example.coinspirit2.ui.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ class CurrencyRVAdapter(
 
     private val df2 = DecimalFormat("#.##")
 
+    @SuppressLint("NotifyDataSetChanged")
     fun filterList(filteredList: ArrayList<CurrencyRVModel>) {
         currencyRVModelArrayList = filteredList
         notifyDataSetChanged()
@@ -28,6 +30,7 @@ class CurrencyRVAdapter(
         return ViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currencyRVModel = currencyRVModelArrayList[position]
         holder.tvName.text = currencyRVModel.name

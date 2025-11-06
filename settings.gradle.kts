@@ -1,3 +1,4 @@
+// settings.gradle.kts
 pluginManagement {
     repositories {
         google()
@@ -5,8 +6,9 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS) // оставляем включённым
     repositories {
         google()
         mavenCentral()
@@ -15,4 +17,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "CoinSpirit2"
 include(":app")
- 

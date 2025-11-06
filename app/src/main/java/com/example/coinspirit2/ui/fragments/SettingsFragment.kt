@@ -1,82 +1,63 @@
 package com.example.coinspirit2.ui.fragments
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.example.coinspirit2.R
-import com.example.coinspirit2.ui.activitys.LoginActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.example.coinspirit2.data.repository.AuthRepository
+import com.example.coinspirit2.utils.TokenManager
+import kotlinx.coroutines.launch
 
-@SuppressLint("UseSwitchCompatOrMaterialCode")
 class SettingsFragment : DialogFragment() {
-    private lateinit var ivProfile: ImageView
+
     private lateinit var tvUsername: TextView
     private lateinit var tvEmail: TextView
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var switchTheme: Switch
     private lateinit var btnLogout: Button
-    private lateinit var auth: FirebaseAuth
-    private var currentUser: FirebaseUser? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
-        ivProfile = view.findViewById(R.id.ivProfile)
         tvUsername = view.findViewById(R.id.tvUsername)
-        tvEmail = view.findViewById(R.id.tvEmail)
+        tvEmail    = view.findViewById(R.id.tvEmail)
         switchTheme = view.findViewById(R.id.switchTheme)
-        btnLogout = view.findViewById(R.id.btnLogout)
+        btnLogout   = view.findViewById(R.id.btnLogout)
 
-        auth = FirebaseAuth.getInstance()
-        currentUser = auth.currentUser
+        // данные пользователя с /me
+        val token = TokenManager.getToken(requireContext())
+        if (token != null) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                AuthRepository().me(token)
+                    .onSuccess { user ->
+                        tvUsername.text = user.email.substringBefore("@")
+                        tvEmail.text = user.email
+                    }
+            }
+        }
 
-        // Заполняем поля
-        val displayName = currentUser?.displayName ?: "User"
-        val email = currentUser?.email ?: "No email"
-        tvUsername.text = displayName
-        tvEmail.text = email
-
-        // Настройка тумблера темы
+        // тема
         switchTheme.isChecked = isDarkModeEnabled(requireContext())
         switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
+            AppCompatDelegate.setDefaultNightMode(
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            )
             saveThemePreference(requireContext(), isChecked)
-            requireActivity().recreate() // Пересоздаём активность для применения новой темы
+            requireActivity().recreate()
         }
 
         btnLogout.setOnClickListener {
-            auth.signOut()
-            Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
+            TokenManager.clearToken(requireContext())
+            Toast.makeText(context, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
             dismiss()
-            navigateToLogin()
         }
 
         return view
-    }
-
-    private fun navigateToLogin() {
-        val intent = Intent(activity, LoginActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-        activity?.finish()
     }
 
     companion object {

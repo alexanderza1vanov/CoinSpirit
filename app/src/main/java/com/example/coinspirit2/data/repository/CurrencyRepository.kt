@@ -1,56 +1,17 @@
 package com.example.coinspirit2.data.repository
 
-import android.content.Context
-import android.view.View
-import android.widget.Toast
-import com.android.volley.AuthFailureError
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.example.coinspirit2.data.model.CurrencyRVModel
-import com.example.coinspirit2.R
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
+import com.example.coinspirit2.data.remote.dto.MarketCoinDto
+import com.example.coinspirit2.data.remote.ktor.KtorClientProvider
+import io.ktor.client.call.body
+import io.ktor.client.request.get
 
-class CurrencyRepository(private val context: Context) {
-
-    private val requestQueue: RequestQueue = Volley.newRequestQueue(context)
-
-    fun getCurrencyData(onSuccess: (ArrayList<CurrencyRVModel>) -> Unit, onError: (String) -> Unit) {
-        val url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest"
-        val jsonObjectRequest = object : JsonObjectRequest(Request.Method.GET, url, null,
-            Response.Listener { response ->
-                try {
-                    val dataArray: JSONArray = response.getJSONArray("data")
-                    val currencyList = ArrayList<CurrencyRVModel>()
-                    for (i in 0 until dataArray.length()) {
-                        val dataObj = dataArray.getJSONObject(i)
-                        val name = dataObj.getString("name")
-                        val symbol = dataObj.getString("symbol")
-                        val quote = dataObj.getJSONObject("quote")
-                        val USD = quote.getJSONObject("USD")
-                        val price = USD.getDouble("price")
-                        currencyList.add(CurrencyRVModel(name, symbol, price))
-                    }
-                    onSuccess(currencyList)
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                    onError("Fail to extract json data...")
-                }
-            },
-            Response.ErrorListener { error ->
-                onError("Fail to get the data...")
-            }) {
-            @Throws(AuthFailureError::class)
-            override fun getHeaders(): Map<String, String> {
-                val headers = HashMap<String, String>()
-                headers["X-CMC_PRO_API_KEY"] = "63912381-5412-4808-9a5a-0f218d0fc574"
-                return headers
-            }
-        }
-        requestQueue.add(jsonObjectRequest)
+class CurrencyRepository(
+    private val client: io.ktor.client.HttpClient = KtorClientProvider.client
+) {
+    // Ktor‑сервер должен отдавать актуальные котировки с CMC: GET /market/latest
+    suspend fun getCurrencyData(): Result<List<CurrencyRVModel>> = runCatching {
+        val list: List<MarketCoinDto> = client.get("/market/latest").body()
+        list.map { CurrencyRVModel(it.name, it.symbol, it.price) }
     }
 }
