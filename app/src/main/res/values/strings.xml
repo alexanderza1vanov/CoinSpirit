@@ -7,7 +7,7 @@
     <string name="add">Add</string>
     <string name="symbol">Symbol</string>
     <string name="name">Name</string>
-    <string name="Hello">Добро \n пожаловать!</string>
+    <string name="Hello">Добро \nпожаловать!</string>
     <string name="coinspirit_description">CoinSpirit — простой и надежный\n инструмент для отслеживания вашего \n инвестиционного портфеля.</string>
     <string name="login">Login</string>
     <string name="email">Email</string>
@@ -19,9 +19,9 @@
     <string name="profit">Прибыль/Убыток</string>
     <string name="_0">$0</string>
     <string name="_999">+999</string>
-    <string name="coin_name">Название</string>
-    <string name="Price">Курс</string>
-    <string name="Buy_price">Цена покупки</string>
+    <string name="coin_name">Актив</string>
+    <string name="Price">Позиция</string>
+    <string name="Buy_price">Инвестировано</string>
     <string name="quantity">Количество</string>
     <string name="username">Username</string>
     <string name="create_account">Создайте\nаккаунт</string>
@@ -31,4 +31,28 @@
     <string name="price">Price</string>
     <string name="log_out">Log out</string>
     <string name="clear">clear</string>
+    <string name="no_data">—</string>
+    <string name="added_ok">Добавлено</string>
+    <string name="back">Назад</string>
+    <string name="buy">Покупка</string>
+    <string name="sell">Продажа</string>
+    <string name="Цена" />
+    <string name="avg">Ср. цена</string>
+    <string name="p_l"><![CDATA[P&L]]></string>
+    <string name="cancel">Отмена</string>
+    <string name="nothing_found">Ничего не найдено(</string>
+    <string name="nothing">Здесь будут ваши запросы)</string>
+    <string name="search_history_empty">Здесь будут ваши запросы)</string>
+    <string name="note_hint">Заметка</string>
+    <string name="note_optional">Заметка (опционально)</string>
+    <string name="price_hint">Цена</string>
+    <string name="qty_hint">Количество</string>
+    <string name="save">Сохранить</string>
+    <string name="fill_required">Заполните цену и количество</string>
+    <string name="saved">Сохранено</string>
+    <string name="added">Добавлено</string>
+    <string name="invested_and_yield_fmt">Инвестировано %1$s • Доходность %2$s</string>
+    <string name="search">Поиск</string>
+
+
 </resources>

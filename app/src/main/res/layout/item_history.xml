@@ -18,11 +18,11 @@
         android:maxLines="1"
         android:ellipsize="end" />
 
-<!--    <ImageButton-->
-<!--        android:id="@+id/btnDeleteHistory"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:src="@drawable/clear"-->
-<!--        android:background="?attr/selectableItemBackgroundBorderless"-->
-<!--        android:contentDescription="delete" />-->
+    <ImageButton
+        android:id="@+id/btnDeleteHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/clear"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="delete" />
 </LinearLayout>

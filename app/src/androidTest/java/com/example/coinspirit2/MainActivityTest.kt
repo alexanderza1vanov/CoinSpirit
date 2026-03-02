@@ -3,6 +3,7 @@ package com.example.coinspirit2
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.coinspirit2.ui.MainActivity
 import org.junit.Test
 import org.junit.runner.RunWith
 

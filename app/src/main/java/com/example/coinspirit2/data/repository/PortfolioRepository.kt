@@ -1,63 +1,62 @@
 package com.example.coinspirit2.data.repository
 
-import com.example.coinspirit2.data.model.PortfolioRVModel
-import com.example.coinspirit2.data.remote.dto.AddPortfolioItemRequest
-import com.example.coinspirit2.data.remote.dto.PortfolioItemDto
-import com.example.coinspirit2.data.remote.ktor.KtorClientProvider
-import io.ktor.client.call.body
-import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.*
+import com.example.coinspirit2.data.local.TokenStore
+import com.example.coinspirit2.data.remote.ApiService
+import com.example.coinspirit2.data.remote.AssetItem
+import com.example.coinspirit2.data.remote.CreateTxRequest
+import com.example.coinspirit2.data.remote.MarketQuote
+import com.example.coinspirit2.data.remote.TokenPair
+import com.example.coinspirit2.data.remote.TxDTO
+import com.example.coinspirit2.data.remote.PositionDTO
 
 class PortfolioRepository(
-    private val client: io.ktor.client.HttpClient = KtorClientProvider.client
+    private val api: ApiService,
+    private val tokenStore: TokenStore
 ) {
-    suspend fun list(accessToken: String): Result<List<PortfolioRVModel>> = runCatching {
-        val resp = client.get("/portfolio") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
+    // --------- AUTH ----------
+    suspend fun register(email: String, password: String, name: String?): TokenPair =
+        api.register(email, password, name)
+
+    suspend fun login(email: String, password: String): TokenPair =
+        api.login(email, password)
+
+    // --------- PORTFOLIO ----------
+    suspend fun portfolio(): List<PositionDTO> = api.portfolio()
+
+    // --------- MARKET (с кэшем) ----------
+    private val priceCache = mutableMapOf<String, Pair<Long, String>>() // symbol -> (ts, price)
+    private val PRICE_TTL = 15_000L
+
+    suspend fun latest(symbols: List<String>): List<MarketQuote> {
+        if (symbols.isEmpty()) return emptyList()
+        val now = System.currentTimeMillis()
+
+        val need = symbols.filterNot { s ->
+            priceCache[s]?.let { (ts, _) -> now - ts < PRICE_TTL } == true
         }
-        if (!resp.status.isSuccess()) error(resp.bodyAsText())
-        val items: List<PortfolioItemDto> = resp.body()
-        items.map {
-            PortfolioRVModel(
-                id = it.id,
-                name = it.name,
-                symbol = it.symbol,
-                price = (it.currentPrice ?: 0.0).toString(),
-                quantity = it.quantity.toString(),
-                purchasePrice = it.purchasePrice.toString()
-            )
+
+        if (need.isNotEmpty()) {
+            val fresh = api.marketLatest(need) // List<MarketQuote> (price: String)
+            fresh.forEach { q -> priceCache[q.symbol] = now to q.price }
+        }
+
+        return symbols.mapNotNull { s ->
+            priceCache[s]?.second?.let { p -> MarketQuote(s, p) }
         }
     }
 
-    suspend fun add(
-        accessToken: String,
-        name: String,
-        symbol: String,
-        quantity: Double,
-        purchasePrice: Double
-    ): Result<PortfolioRVModel> = runCatching {
-        val resp = client.post("/portfolio") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-            contentType(ContentType.Application.Json)
-            setBody(AddPortfolioItemRequest(name, symbol, quantity, purchasePrice))
-        }
-        if (!resp.status.isSuccess()) error(resp.bodyAsText())
-        val dto: PortfolioItemDto = resp.body()
-        PortfolioRVModel(
-            id = dto.id,
-            name = dto.name,
-            symbol = dto.symbol,
-            price = (dto.currentPrice ?: 0.0).toString(),
-            quantity = dto.quantity.toString(),
-            purchasePrice = dto.purchasePrice.toString()
-        )
-    }
+    suspend fun search(q: String): List<AssetItem> = api.marketSearch(q)
 
-    suspend fun delete(accessToken: String, id: Long): Result<Unit> = runCatching {
-        val resp = client.delete("/portfolio/$id") {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-        if (!resp.status.isSuccess()) error(resp.bodyAsText()) else Unit
-    }
+    // --------- TRANSACTIONS ----------
+    suspend fun transactionsBySymbol(symbol: String): List<TxDTO> =
+        api.transactionsBySymbol(symbol)
+
+    suspend fun deleteTransaction(id: Int) = api.deleteTransaction(id)
+
+    suspend fun createTransaction(req: CreateTxRequest): Int = api.createTransaction(req)
+
+    suspend fun getTransaction(id: Int): TxDTO? = api.transactionById(id)
+
+    suspend fun updateTransaction(id: Int, req: CreateTxRequest) =
+        api.updateTransaction(id, req)
 }

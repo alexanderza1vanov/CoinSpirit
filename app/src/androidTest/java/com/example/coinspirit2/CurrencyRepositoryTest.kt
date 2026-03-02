@@ -1,8 +1,6 @@
 package com.example.coinspirit2
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.coinspirit2.data.model.CurrencyRVModel
-import com.example.coinspirit2.data.repository.CurrencyRepository
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
