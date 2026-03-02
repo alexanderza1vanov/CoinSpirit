@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -26,7 +27,7 @@ class TransactionsViewModel : ViewModel() {
         symbol
             .filterNotNull()
             .distinctUntilChanged()
-            .flatMapLatest { sym -> pricePolling(sym) }          // flow<BigDecimal>
+            .flatMapLatest { sym -> pricePolling(sym) } // flow<BigDecimal>
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
@@ -46,7 +47,10 @@ class TransactionsViewModel : ViewModel() {
                 initialValue = "Текущая цена: —"
             )
 
-    data class Header(val invested: BigDecimal, val totalValue: BigDecimal) {
+    data class Header(
+        val invested: BigDecimal,   // cost basis (себестоимость текущей позиции)
+        val totalValue: BigDecimal  // market value (текущая рыночная стоимость)
+    ) {
         val yieldPct: BigDecimal
             get() = if (invested.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO
             else (totalValue - invested) * BigDecimal(100) / invested
@@ -55,36 +59,53 @@ class TransactionsViewModel : ViewModel() {
     // заголовок портфеля = функция от (tx, livePrice)
     val header: StateFlow<Header> =
         combine(_tx, livePriceValue) { rows, px ->
-            // посчитаем вложения и количество
-            var invested = BigDecimal.ZERO
-            var qty = BigDecimal.ZERO
 
+            var costBasis = BigDecimal.ZERO      // то, что показываем как "Инвестировано"
+            var qty = BigDecimal.ZERO            // текущее количество монет
+
+            // ВАЖНО: правильный average-cost:
+            // BUY -> costBasis += price * qtyBuy; qty += qtyBuy
+            // SELL -> avgCost = costBasis/qty; costBasis -= avgCost*qtySell; qty -= qtySell
             rows.forEach { r ->
                 val price = r.price.bd()
-                val q = r.quantity.bd()
-                if (r.type.equals("BUY", true)) {
-                    invested += (price * q)
-                    qty += q
+                val qAbs = r.quantity.bd().abs() // нормализуем на случай отрицательных qty
+
+                if (price.signum() == 0 || qAbs.signum() == 0) return@forEach
+
+                val isBuy = r.type.equals("BUY", true)
+
+                if (isBuy) {
+                    costBasis = costBasis + (price * qAbs)
+                    qty = qty + qAbs
                 } else {
-                    invested -= (price * q)
-                    qty -= q
+                    // продажа
+                    if (qty.signum() == 0) {
+                        // нечего продавать по average cost (данные "в минус") — просто пропустим
+                        return@forEach
+                    }
+
+                    // не даём продать больше, чем есть (защита от отрицательных остатков)
+                    val sellQty = qAbs.min(qty)
+
+                    val avgCost = if (qty.signum() == 0) BigDecimal.ZERO
+                    else costBasis.divide(qty, 18, RoundingMode.HALF_UP)
+
+                    costBasis = costBasis - (avgCost * sellQty)
+                    qty = qty - sellQty
                 }
             }
 
             val total = px * qty
-            Header(invested = invested, totalValue = total)
+            Header(invested = costBasis.max(BigDecimal.ZERO), totalValue = total.max(BigDecimal.ZERO))
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = Header(BigDecimal.ZERO, BigDecimal.ZERO)
         )
-
-    /** Публичный метод: загрузить данные для символа и запустить «умный» авто-обновлятор. */
+    /** Публичный метод: загрузить данные для символа */
     fun loadForSymbol(sym: String) = viewModelScope.launch {
         symbol.value = sym
         _tx.value = repo.transactionsBySymbol(sym)
-        // Инициируем начальную цену сразу (не ждём первой итерации 30с)
-        // — pricePolling тоже делает мгновенный запрос, так что можно не дёргать тут latest.
     }
 
     /** Удаление транзакции с ре-лоадом списка для текущего символа. */
@@ -95,7 +116,7 @@ class TransactionsViewModel : ViewModel() {
         }
     }
 
-    /** Поллинг цены: немедленный запрос + повтор каждые 30с. Отменяется flatMapLatest’ом. */
+    /** Поллинг цены: немедленный запрос + повтор каждые 30с. */
     private fun pricePolling(sym: String): Flow<BigDecimal> = flow {
         while (true) {
             val px = runCatching {
@@ -113,15 +134,20 @@ class TransactionsViewModel : ViewModel() {
 }
 
 /* ---------- helpers ---------- */
+
 private fun String?.bd(): BigDecimal = try {
     if (this.isNullOrBlank()) BigDecimal.ZERO else BigDecimal(this)
 } catch (_: Throwable) { BigDecimal.ZERO }
-
-private operator fun BigDecimal.plus(o: BigDecimal) = this.add(o)
-private operator fun BigDecimal.minus(o: BigDecimal) = this.subtract(o)
-private operator fun BigDecimal.times(o: BigDecimal) = this.multiply(o)
 
 private fun BigDecimal.prettyCurrency(): String {
     val nf = NumberFormat.getCurrencyInstance(Locale.US)
     return nf.format(this)
 }
+
+private fun BigDecimal.abs(): BigDecimal = this.abs()
+private fun BigDecimal.min(o: BigDecimal): BigDecimal = if (this <= o) this else o
+private fun BigDecimal.max(o: BigDecimal): BigDecimal = if (this >= o) this else o
+
+private operator fun BigDecimal.plus(o: BigDecimal) = this.add(o)
+private operator fun BigDecimal.minus(o: BigDecimal) = this.subtract(o)
+private operator fun BigDecimal.times(o: BigDecimal) = this.multiply(o)
