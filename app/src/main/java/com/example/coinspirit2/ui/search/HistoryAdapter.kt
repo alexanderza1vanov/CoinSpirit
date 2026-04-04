@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/coinspirit2/ui/search/HistoryAdapter.kt
 package com.example.coinspirit2.ui.search
 
 import android.view.LayoutInflater
