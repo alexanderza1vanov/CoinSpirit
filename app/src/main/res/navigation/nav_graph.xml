@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.coinspirit2.ui.auth.LoginFragment"
+        android:label="login">
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_login_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/transactionsFragment"
+        android:name="com.example.coinspirit2.ui.tx.TransactionsFragment"
+        android:label="Ваши инвестиции">
+        <argument
+            android:name="symbol"
+            app:argType="string" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_home_to_transactions"
+        app:destination="@id/transactionsFragment" />
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.coinspirit2.ui.auth.RegisterFragment"
+        android:label="register">
+        <action
+            android:id="@+id/action_register_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.coinspirit2.ui.home.HomeFragment"
+        android:label="home">
+        <action
+            android:id="@+id/action_home_to_settings"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_home_to_search"
+            app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_home_to_currencyDetail"
+            app:destination="@id/currencyDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.example.coinspirit2.ui.search.SearchFragment"
+        android:label="search" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.coinspirit2.ui.settings.SettingsFragment"
+        android:label="settings">
+        <action
+            android:id="@+id/action_settings_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/currencyDetailFragment"
+        android:name="com.example.coinspirit2.ui.currency.CurrencyDetailFragment"
+        android:label="CurrencyDetailFragment">
+
+
+        <argument
+            android:name="symbol"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="editTxId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+</navigation>

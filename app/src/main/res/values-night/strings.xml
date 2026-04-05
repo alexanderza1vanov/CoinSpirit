@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="buy">Покупка</string>
+    <string name="sell">Продажа</string>
+    <string name="Цена" />
+    <string name="cancel">Отмена</string>
+    <string name="note_hint">Заметка</string>
+    <string name="note_optional">Заметка (опционально)</string>
+    <string name="price_hint">Цена</string>
+    <string name="qty_hint">Количество</string>
+    <string name="search">Поиск</string>
+
+</resources>
